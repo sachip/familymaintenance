@@ -3,6 +3,7 @@ package org.myapps.family.resource;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,7 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.myapps.family.domain.Person;
+import org.myapps.family.service.PersonService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +31,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class PersonControllerTest {
 
 	private MockMvc mockMvc;
+	
+	@Mock
+	private PersonService personService;
+
 
 	@InjectMocks
 	private PersonController personController;
@@ -39,16 +47,23 @@ public class PersonControllerTest {
 	}
 
 	@Test
-	public void testCreateParent() throws Exception {
+	public void createParent_Success() throws Exception {
 		Person parent = constructPerson(true);
-		this.mockMvc
-				.perform(
-						post("/parents").contentType(MediaType.APPLICATION_JSON)
-								.content(asJsonString(parent)))
-				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.firstName", Matchers.is("John")));
+		Mockito.when(personService.createParent(parent)).thenReturn(true);
+		this.mockMvc.perform(post("/parents").contentType(MediaType.APPLICATION_JSON).content(asJsonString(parent)))
+				.andExpect(status().isCreated()).andExpect(jsonPath("$.firstName", Matchers.is("John")));
 
 	}
+
+	@Test
+	public void createParent_Failed() throws Exception {
+		Person parent = constructPerson(true);
+		Mockito.when(personService.createParent(parent)).thenReturn(false);
+		this.mockMvc.perform(post("/parents").contentType(MediaType.APPLICATION_JSON).content(asJsonString(parent)))
+				.andExpect(status().isOk()).andExpect(content().string("Failed to create resource"));
+
+	}
+
 
 	
 	@Test
