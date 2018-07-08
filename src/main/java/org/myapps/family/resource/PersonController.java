@@ -1,5 +1,6 @@
 package org.myapps.family.resource;
 import org.myapps.family.domain.Person;
+import org.myapps.family.service.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,11 +23,26 @@ public class PersonController {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(PersonController.class);
+	
+	
+	private PersonService personService;
+     
+		
+	   
+	    public PersonController(PersonService personService) {
+	    	this.personService=personService;
+	    
+	    }
+	    
 
 	@PostMapping
 	public ResponseEntity<?> createParent(@RequestBody final Person parent) {
 
-		return new ResponseEntity<Person>(parent, HttpStatus.CREATED);
+		  if(personService.createParent(parent)){
+	    		return new ResponseEntity<Person>(parent, HttpStatus.CREATED);
+	    	} else {
+	    		return new ResponseEntity<String>("Failed to create resource", HttpStatus.OK);
+	    	}
 
 	}
 
