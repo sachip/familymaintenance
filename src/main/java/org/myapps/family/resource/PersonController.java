@@ -1,4 +1,6 @@
 package org.myapps.family.resource;
+import java.util.List;
+
 import org.myapps.family.domain.Person;
 import org.myapps.family.service.PersonService;
 import org.slf4j.Logger;
@@ -46,25 +48,40 @@ public class PersonController {
 
 	}
 
-	@GetMapping(value = "/{id}")
-	public ResponseEntity<?> getParent(@PathVariable("id") Long parentId) {
-
-		return new ResponseEntity<Person>(new Person(), HttpStatus.OK);
-	}
-	@PutMapping(value = "/{id}")
-	public ResponseEntity<?> updatePerson(@PathVariable("id") Long id,
-			@RequestBody Person person) {
-
-		return new ResponseEntity<Person>(new Person(), HttpStatus.NO_CONTENT);
-
-	}
-
-	@PutMapping(value = "/children/{id}")
-	public ResponseEntity<?> updateChildren(@PathVariable("id") Long id,
-			@RequestBody Person person) {
-
-		return new ResponseEntity<Person>(new Person(), HttpStatus.NO_CONTENT);
-
-	}
-
+	 @GetMapping
+	    public List<Person> getParents(){
+	   
+	    	return personService.findParentWithChildrens();
+	       
+	    }
+	    
+	    @GetMapping(value = "/{id}")
+	    public Person getParent(@PathVariable("id") Long parentId){
+	    	
+	    	return personService.findParent(parentId);
+	       
+	    }
+	    @PutMapping(value = "/{id}")
+	    public ResponseEntity<?> updatePerson(@PathVariable("id") Long id, @RequestBody Person person) {
+	    	
+	        if(personService.updateParent(id, person)){
+	    		return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+	    	} else {
+	    		return new ResponseEntity<String>("Fail to creat parent", HttpStatus.OK);
+	    	}
+		    	
+	        
+	    }
+	    
+	    @PutMapping(value = "/children/{id}")
+	    public ResponseEntity<?> updateChildren(@PathVariable("id") Long id, @RequestBody Person person) {
+	       
+	    	if(personService.updateChildren(id, person)){
+	    		return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+	    	} else {
+	    		return new ResponseEntity<String>("Fail to creat parent", HttpStatus.OK);
+	    	}
+	    	
+	    }
+	    
 }

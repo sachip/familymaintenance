@@ -1,6 +1,7 @@
 package org.myapps.family.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.myapps.family.data.PersonRepository;
 import org.myapps.family.domain.Person;
@@ -42,5 +43,56 @@ public class PersonService {
 		return isSaved;
 	}
 
-	
+	public Person findParent(Long id) {
+
+		return personRepository.findOne(id);
+	}
+
+	public List<Person> findParentWithChildrens() {
+
+		// return personRepository.findAll();
+		return personRepository.findAllParent();
+	}
+
+	public boolean updateParent(Long id, Person person) {
+
+		boolean isUpdated = true;
+
+		Person existingPerson = personRepository.findOne(id);
+		existingPerson.setFirstName(person.getFirstName());
+		existingPerson.setLastName(person.getLastName());
+		existingPerson.setEmailAddress(person.getEmailAddress());
+		existingPerson.setChildren(person.getChildren());
+		try {
+			Collection<Person> childrens = existingPerson.getChildren();
+			for (Person child : childrens) {
+				child.setParent(existingPerson);
+			}
+
+			personRepository.save(existingPerson);
+			personRepository.save(childrens);
+		} catch (Exception e) {
+			e.printStackTrace();
+			isUpdated = false;
+		}
+
+		return isUpdated;
+	}
+
+	public boolean updateChildren(Long id, Person person) {
+		boolean isUpdated = true;
+		try {
+			Person existingPerson = personRepository.findOne(id);
+			existingPerson.setFirstName(person.getFirstName());
+			existingPerson.setLastName(person.getLastName());
+			existingPerson.setEmailAddress(person.getEmailAddress());
+			personRepository.save(existingPerson);
+		} catch (Exception e) {
+			e.printStackTrace();
+			isUpdated = false;
+
+		}
+		return isUpdated;
+	}
+
 }
