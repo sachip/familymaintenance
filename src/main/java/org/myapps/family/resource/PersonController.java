@@ -25,63 +25,63 @@ public class PersonController {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(PersonController.class);
-	
-	
+
 	private PersonService personService;
-     
-		
-	   
-	    public PersonController(PersonService personService) {
-	    	this.personService=personService;
-	    
-	    }
-	    
+
+	public PersonController(PersonService personService) {
+		this.personService = personService;
+
+	}
 
 	@PostMapping
 	public ResponseEntity<?> createParent(@RequestBody final Person parent) {
 
-		  if(personService.createParent(parent)){
-	    		return new ResponseEntity<Person>(parent, HttpStatus.CREATED);
-	    	} else {
-	    		return new ResponseEntity<String>("Failed to create resource", HttpStatus.OK);
-	    	}
+		if (personService.createParent(parent)) {
+			return new ResponseEntity<Person>(parent, HttpStatus.CREATED);
+		} else {
+			return new ResponseEntity<String>("Failed to create resource",
+					HttpStatus.OK);
+		}
 
 	}
 
-	 @GetMapping
-	    public List<Person> getParents(){
-	   
-	    	return personService.findParentWithChildrens();
-	       
-	    }
-	    
-	    @GetMapping(value = "/{id}")
-	    public Person getParent(@PathVariable("id") Long parentId){
-	    	
-	    	return personService.findParent(parentId);
-	       
-	    }
-	    @PutMapping(value = "/{id}")
-	    public ResponseEntity<?> updatePerson(@PathVariable("id") Long id, @RequestBody Person person) {
-	    	
-	        if(personService.updateParent(id, person)){
-	    		return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
-	    	} else {
-	    		return new ResponseEntity<String>("Fail to creat parent", HttpStatus.OK);
-	    	}
-		    	
-	        
-	    }
-	    
-	    @PutMapping(value = "/children/{id}")
-	    public ResponseEntity<?> updateChildren(@PathVariable("id") Long id, @RequestBody Person person) {
-	       
-	    	if(personService.updateChildren(id, person)){
-	    		return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
-	    	} else {
-	    		return new ResponseEntity<String>("Fail to creat parent", HttpStatus.OK);
-	    	}
-	    	
-	    }
-	    
+	@GetMapping
+	public List<Person> getParents() {
+
+		return personService.findParentWithChildrens();
+
+	}
+
+	@GetMapping(value = "/{id}")
+	public Person getParent(@PathVariable("id") Long parentId) {
+
+		return personService.findParent(parentId);
+
+	}
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<?> updatePerson(@PathVariable("id") Long id,
+			@RequestBody Person person) {
+
+		if (personService.updateParent(id, person)) {
+			return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity<String>("Fail to creat parent",
+					HttpStatus.OK);
+		}
+
+	}
+
+	@PutMapping(value = "/children/{id}")
+	public ResponseEntity<?> updateChildren(@PathVariable("id") Long id,
+			@RequestBody Person person) {
+
+		if (personService.updateChildren(id, person)) {
+			return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity<String>("Fail to creat parent",
+					HttpStatus.OK);
+		}
+
+	}
+
 }
