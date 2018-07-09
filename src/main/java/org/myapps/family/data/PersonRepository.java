@@ -12,4 +12,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
 	@Query("SELECT person from Person person where person.parent.id  IS NULL")
 	List<Person> findAllParent();
+	
+	
+	
 }

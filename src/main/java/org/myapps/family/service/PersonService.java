@@ -54,44 +54,24 @@ public class PersonService {
 		return personRepository.findAllParent();
 	}
 
-	public boolean updateParent(Long id, Person person) {
+	public boolean updatePerson(Long id, Person person) {
 
-		boolean isUpdated = true;
-
-		Person existingPerson = personRepository.findOne(id);
-		existingPerson.setFirstName(person.getFirstName());
-		existingPerson.setLastName(person.getLastName());
-		existingPerson.setEmailAddress(person.getEmailAddress());
-		existingPerson.setChildren(person.getChildren());
-		try {
-			Collection<Person> childrens = existingPerson.getChildren();
-			for (Person child : childrens) {
-				child.setParent(existingPerson);
-			}
-
-			personRepository.save(existingPerson);
-			personRepository.save(childrens);
-		} catch (Exception e) {
-			e.printStackTrace();
-			isUpdated = false;
-		}
-
-		return isUpdated;
-	}
-
-	public boolean updateChildren(Long id, Person person) {
 		boolean isUpdated = true;
 		try {
 			Person existingPerson = personRepository.findOne(id);
 			existingPerson.setFirstName(person.getFirstName());
 			existingPerson.setLastName(person.getLastName());
 			existingPerson.setEmailAddress(person.getEmailAddress());
+			existingPerson.setDateOfBirth(person.getDateOfBirth());
+			existingPerson.setGender(person.getGender());
+			existingPerson.setSecondName(person.getSecondName());
 			personRepository.save(existingPerson);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			isUpdated = false;
-
 		}
+
 		return isUpdated;
 	}
 

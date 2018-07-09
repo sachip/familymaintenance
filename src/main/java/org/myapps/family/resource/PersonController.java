@@ -1,4 +1,5 @@
 package org.myapps.family.resource;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.myapps.family.domain.Person;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.base.Preconditions;
 
 import io.swagger.annotations.Api;
 
@@ -36,37 +39,93 @@ public class PersonController {
 	@PostMapping
 	public ResponseEntity<?> createParent(@RequestBody final Person parent) {
 
-		if (personService.createParent(parent)) {
+		log.debug("PersonController :: - > createParent()");
+		boolean isCreated = true;
+
+		try {
+			// Basic Validation
+			if (!validatePersonAttributes(parent)) {
+
+				return new ResponseEntity<String>(
+						"FirstName And Gender Must be entered ",
+						HttpStatus.BAD_REQUEST);
+			}
+			isCreated = personService.createParent(parent);
+
+		} catch (Exception ex) {
+			log.error("EX", ex);
+			isCreated = false;
+
+		}
+		if (isCreated) {
 			return new ResponseEntity<Person>(parent, HttpStatus.CREATED);
 		} else {
-			return new ResponseEntity<String>("Failed to create resource",
-					HttpStatus.OK);
+			return new ResponseEntity<String>("Failed To Create Resource",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
 
 	@GetMapping
-	public List<Person> getParents() {
+	public ResponseEntity<?> getParents() {
+		log.debug("PersonController :: - > getParents()");
 
-		return personService.findParentWithChildrens();
+		List<Person> persons = new ArrayList();
+		try {
+			persons = personService.findParentWithChildrens();
+
+		} catch (Exception ex) {
+			log.error("EX", ex);
+
+		}
+		if (persons != null && !persons.isEmpty()) {
+			return new ResponseEntity<List<Person>>(persons, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<List<Person>>(persons,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
 	}
 
 	@GetMapping(value = "/{id}")
-	public Person getParent(@PathVariable("id") Long parentId) {
+	public ResponseEntity<?> getParent(@PathVariable("id") Long parentId) {
+		log.debug("PersonController :: - > getParent()");
 
-		return personService.findParent(parentId);
+		Person person = new Person();
+		try {
+			person = personService.findParent(parentId);
+
+		} catch (Exception ex) {
+			log.error("EX", ex);
+			return new ResponseEntity<Person>(person,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		if (person != null) {
+			return new ResponseEntity<Person>(person, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<Person>(person,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
 	}
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<?> updatePerson(@PathVariable("id") Long id,
 			@RequestBody Person person) {
+		log.debug("PersonController :: - > updatePerson()");
+		boolean isUpdated = true;
+		try {
+			isUpdated = personService.updatePerson(id, person);
 
-		if (personService.updateParent(id, person)) {
-			return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+		} catch (Exception ex) {
+			log.error("EX", ex);
+			isUpdated = false;
+
+		}
+		if (isUpdated) {
+			return new ResponseEntity<Person>(person, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<String>("Fail to creat parent",
-					HttpStatus.OK);
+			return new ResponseEntity<String>("Failed To Update Resource",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -74,14 +133,38 @@ public class PersonController {
 	@PutMapping(value = "/children/{id}")
 	public ResponseEntity<?> updateChildren(@PathVariable("id") Long id,
 			@RequestBody Person person) {
+		log.debug("PersonController :: - > updateChildren()");
+		boolean isUpdated = true;
+		try {
+			isUpdated = personService.updatePerson(id, person);
 
-		if (personService.updateChildren(id, person)) {
-			return new ResponseEntity<Person>(person, HttpStatus.NO_CONTENT);
+		} catch (Exception ex) {
+			log.error("EX", ex);
+
+		}
+
+		if (isUpdated) {
+			return new ResponseEntity<Person>(person, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<String>("Fail to creat parent",
-					HttpStatus.OK);
+			return new ResponseEntity<String>("Failed To Update Resource",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
 
+	// Basic Validation ( First Name and Gender )
+	public boolean validatePersonAttributes(Person person) {
+		boolean isValidAttribute = true;
+		try {
+			if (person.getFirstName().isEmpty()
+					|| person.getGender().trim().isEmpty()) {
+				isValidAttribute = false;
+			}
+
+		} catch (Exception e) {
+			isValidAttribute = false;
+		}
+		return isValidAttribute;
+
+	}
 }
